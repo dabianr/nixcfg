@@ -9,7 +9,10 @@
   };
 
   inputs = {
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # 7.3.4-zen 在 B550 + nvme/ahci/xhci 早期探测时 process_one_work NULL deref panic,
+    # 整份 nixpkgs 固定到 2026-10-30 的 rev (linux-zen 7.2.11 + patchelf 0.19.2)。
+    # 上游修好后把这里改回 nixos-unstable 再 nix flake update 即可。
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/1c89083e451e891152365b799595cf7790a43325";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     nixpkgs.follows = "nixpkgs-unstable";
@@ -45,11 +48,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # 不能 follows: 26.11 的 nixpkgs 已把 patchelf 回退到 0.15.2, 而 hermes 的
-    # 补丁按 0.19.2 编写, 打不上; 显式钉到 hermes 自己 flake.lock 的 0.19.2 rev。
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {

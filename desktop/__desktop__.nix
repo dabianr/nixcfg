@@ -15,7 +15,7 @@
     base.theme = "manual";
     dispMgr.select = "noctalia-greeter";
     winMgr.list = [
-      # "labwc"
+      "labwc"
       "niri"
     ];
     shell = {
