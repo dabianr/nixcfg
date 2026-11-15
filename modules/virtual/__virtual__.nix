@@ -5,5 +5,6 @@
     ./container.nix
     ./appimage.nix
     ./waydroid.nix
+    ./droidloom.nix
   ];
 }

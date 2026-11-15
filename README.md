@@ -152,6 +152,7 @@ nixcfg/
 │   │   ├── container.nix       # podman + distrobox
 │   │   ├── appimage.nix        # flatpak + appimage binfmt
 │   │   ├── waydroid.nix        # Android 容器
+│   │   ├── droidloom.nix       # DroidLoom (实验性, 与 waydroid 同级)
 │   │   └── kvm.nix             # libvirtd + qemu
 │
 ├── desktop/            # Layer 2: 桌面环境

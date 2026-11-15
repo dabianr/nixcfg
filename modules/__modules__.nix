@@ -19,6 +19,7 @@
     virtual.nix-ld.enable = true;
     virtual.container.enable = true;
     virtual.waydroid.enable = true;
+    virtual.droidloom.enable = true; # WIP
     virtual.appimage.enable = true;
     virtual.kvm.enable = true;
   };

@@ -2,7 +2,14 @@
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    problems.handlers = {
+      "gtk+".broken = "warn"; #TODO
+    };
+  };
+    
+    
   boot.zfs.forceImportRoot = false; # 无 ZFS, 按 26.11 推荐关闭强制导入
 
   # zram
