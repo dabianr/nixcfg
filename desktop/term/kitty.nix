@@ -4,83 +4,88 @@
   lib,
   username,
   ...
-}:
-lib.mkIf (config.desktop.term.select == "kitty") {
-  environment.systemPackages = with pkgs; [
-    kitty
-  ];
+}: let
+  cfg = config.desktop.term.kitty;
+in {
+  options.desktop.term.kitty.enable = lib.mkEnableOption "kitty terminal";
 
-  # programs.kitty是 Home Manager option ，
-  # 需要放在home-manager.users.${username}里
-  # https://nix-community.github.io/home-manager/options.xhtml#opt-programs.kitty.enable
-  # https://discourse.nixos.org/t/the-option-programs-kitty-does-not-exist/39447
+  config = lib.mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [
+      kitty
+    ];
 
-  home-manager.users.${username} = {
-    programs.kitty = lib.mkForce {
-      enable = true;
-      # settings = {};
-      extraConfig = ''
-        include	current-theme.conf
+    # programs.kitty是 Home Manager option ，
+    # 需要放在home-manager.users.${username}里
+    # https://nix-community.github.io/home-manager/options.xhtml#opt-programs.kitty.enable
+    # https://discourse.nixos.org/t/the-option-programs-kitty-does-not-exist/39447
 
-        font_size			14
-        font_family			Maple Mono NF CN ExtraLight
-        bold_font			Maple Mono NF CN Bold
-        italic_font			Maple Mono NF CN Italic
-        bold_italic_font	Maple Mono NF CN Bold Italic
-        font_features		MapleMono-NF-CN-ExtraLight +cv01 +ss02 +ss04 +ss05 +zero
-        font_features		MapleMono-NF-CN-Bold +cv01 +ss02 +ss04 +ss05 +zero
-        font_features		MapleMono-NF-CN-Italic +cv01 +ss02 +ss04 +ss05 +zero
-        font_features		MapleMono-NF-CN-BoldItalic +cv01 +ss02 +ss04 +ss05 +zero
+    home-manager.users.${username} = {
+      programs.kitty = lib.mkForce {
+        enable = true;
+        # settings = {};
+        extraConfig = ''
+          include	current-theme.conf
 
-        # window
-        remember_window_size		yes
-        #hide_window_decorations	titlebar-only
-        window_padding_width		0
-        background_opacity			0.80
-        background_blur				32
+          font_size			14
+          font_family			Maple Mono NF CN ExtraLight
+          bold_font			Maple Mono NF CN Bold
+          italic_font			Maple Mono NF CN Italic
+          bold_italic_font		Maple Mono NF CN Bold Italic
+          font_features		MapleMono-NF-CN-ExtraLight +cv01 +ss02 +ss04 +ss05 +zero
+          font_features		MapleMono-NF-CN-Bold +cv01 +ss02 +ss04 +ss05 +zero
+          font_features		MapleMono-NF-CN-Italic +cv01 +ss02 +ss04 +ss05 +zero
+          font_features		MapleMono-NF-CN-BoldItalic +cv01 +ss02 +ss04 +ss05 +zero
 
-        # tab bar
-        tab_bar_edge                top
-        tab_bar_style               powerline
-        tab_powerline_style         slanted
+          # window
+          remember_window_size		yes
+          #hide_window_decorations	titlebar-only
+          window_padding_width		0
+          background_opacity			0.80
+          background_blur				32
 
-        #key map
-        map ctrl+shift+\  launch --location=hsplit --cwd=current
-        map ctrl+shift+'  launch --location=vsplit --cwd=current
-        map ctrl+shift+;  launch --location=split --cwd=current
-        # map ctrl+shift+r  layout_action rotate
+          # tab bar
+          tab_bar_edge                top
+          tab_bar_style               powerline
+          tab_powerline_style         slanted
 
-        # map ctrl+left   neighboring_window left
-        # map ctrl+right  neighboring_window right
-        # map ctrl+up     neighboring_window up
-        # map ctrl+down   neighboring_window down
+          #key map
+          map ctrl+shift+\  launch --location=hsplit --cwd=current
+          map ctrl+shift+'  launch --location=vsplit --cwd=current
+          map ctrl+shift+;  launch --location=split --cwd=current
+          # map ctrl+shift+r  layout_action rotate
 
-        #map ctrl+s send_text all \e:w\r
-        map cmd+1 combine : send_key ctrl+space : send_key 1
-        map home send_text all \x1b[H
-        map end send_text all \x1b[F
+          # map ctrl+left   neighboring_window left
+          # map ctrl+right  neighboring_window right
+          # map ctrl+up     neighboring_window up
+          # map ctrl+down   neighboring_window down
 
-        #url
-        mouse_map left click grabbed,ungrabbed discard_event
-        mouse_map ctrl+left press grabbed discard_event
-        mouse_map ctrl+left release ungrabbed mouse_handle_click selection link prompt
-      '';
-    };
+          #map ctrl+s send_text all \e:w\r
+          map cmd+1 combine : send_key ctrl+space : send_key 1
+          map home send_text all \x1b[H
+          map end send_text all \x1b[F
 
-    xdg.configFile = {
-      "kitty/current-theme.conf" = {
-        force = true;
-        recursive = true;
-        source = ./config/current-theme.conf;
+          #url
+          mouse_map left click grabbed,ungrabbed discard_event
+          mouse_map ctrl+left press grabbed discard_event
+          mouse_map ctrl+left release ungrabbed mouse_handle_click selection link prompt
+        '';
+      };
+
+      xdg.configFile = {
+        "kitty/current-theme.conf" = {
+          force = true;
+          recursive = true;
+          source = ./config/current-theme.conf;
+        };
       };
     };
-  };
 
-  xdg.mime.defaultApplications = {
-    "x-scheme-handler/terminal" = "kitty";
-  };
-  environment.sessionVariables = {
-    TERMINAL = "kitty";
-    TERM = "xterm-kitty";
+    xdg.mime.defaultApplications = {
+      "x-scheme-handler/terminal" = "kitty";
+    };
+    environment.sessionVariables = {
+      TERMINAL = "kitty";
+      TERM = "xterm-kitty";
+    };
   };
 }

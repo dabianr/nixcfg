@@ -57,25 +57,10 @@
 	```
 	并在`__apps__.nix` `__desktop__.nix` `__modules__.nix`中设置默认值.每个 `__*__.nix` 自声明 option，父模块只设 `lib.mkDefault` 默认值.
 
-3. 对2的补充, 模块对外提供的option目前有以下三种, 启用 .enable | 单选 select | 多选 list ,
-	在__desktop__.nix中,为了方便批量选择和选择防止冲突使用多选和单选方法, 每个叶子模块仍用.enable设置boolean, 在父节点(.list option定义处)设置select或list选择逻辑  
-	如`desktop/winMgr/__winMgr__.nix`
-	```nix
-	...
-	let
-		mkWmEnable = name: lib.mkDefault (builtins.elem name config.desktop.winMgr.list);
-	in
-	{
-		# 定义list
-		options.desktop.winMgr.list = ...
-			# 实现list选择逻辑
-			desktop.winMgr.niri.enable    = mkWmEnable "niri";
-			desktop.winMgr.labwc.enable   = mkWmEnable "labwc";
-			desktop.winMgr.hypr.enable    = mkWmEnable "hypr";
-			desktop.winMgr.mangowc.enable = mkWmEnable "mangowc";
-		...
-	}
-	```
+3. 模块对外只暴露 `.enable`(boolean), 不再有 `.select` / `.list` 聚合层。
+	默认值统一在 `__desktop__.nix` 的 `lib.mkDefault` 里直接开对应叶子, 如
+	`desktop.winMgr.niri.enable = true;`; 单选/多选就是显式打开各叶子,
+	互斥(如两个 display manager)由配置自己保证, 不再由父模块做映射。
 
 4. **最小改动原则**: 每次增加功能只用简洁的语法造成最小的改动, 删除\简化则不受约束.比如能在变量里改动一处,就不要改动多处
 
@@ -90,8 +75,8 @@
 
 ### 桌面组件
 
-- 通过 `desktop.*.list` / `desktop.*.select` 选项进行开关，各模块内部使用 `mkIf` 自激活
-- `desktop.winMgr.list` 是列表类型：可同时启用多个 WM，登录界面切换，无需重构
+- 通过各叶子的 `desktop.*.<name>.enable` 直接开关，各模块内部使用 `mkIf` 自激活
+- `desktop.winMgr` 下可同时开多个 WM（登录界面切换），无需重构
 - 各 WM 自带的 portal 依赖只在该 WM 启用时安装
 - `desktop/__desktop__.nix` 设有公共默认值，减少 lap/pc 之间的重复
 - **「打开文件所在位置」不是 `xdg.portal` 管的**：浏览器（Chromium/Brave 的 `ShowItems`）走 D-Bus 名 `org.freedesktop.FileManager1`，`xdg.portal` 的 `xdgOpenUsePortal` 只影响 `xdg-open`/OpenURI 那条路。系统里 dolphin / thunar / nautilus 会同时注册该名字，dbus-broker 按 `$XDG_RUNTIME_DIR` → `$XDG_DATA_HOME` → `$XDG_DATA_DIRS` → 配置内 `<servicedir>` 的顺序取先扫到的那个（重名直接 `Ignoring duplicate name` 跳过）。因此 `desktop/fileMgr/thunar/thunar.nix` 在用户级 `~/.local/share/dbus-1/services` 放一份同名 service，启用 thunar 即稳定接管；目录的 `inode/directory` 关联也在同一处用 `xdg.mimeApps` 设到 `thunar.desktop`。
@@ -165,12 +150,12 @@ nixcfg/
 │   │   ├── qt.nix
 │   │   └── stylix.nix
 │   ├── dispMgr/            # sddm / greetd / noctalia-greeter
-│   │   ├── __dispMgr__.nix # desktop.dispMgr.select
+│   │   ├── __dispMgr__.nix # imports
 │   │   ├── greetd/
 │   │   ├── noctalia-greeter/
 │   │   └── sddm/
 │   ├── winMgr/             # niri / hypr / labwc / mangowc
-│   │   ├── __winMgr__.nix  # desktop.winMgr.list
+│   │   ├── __winMgr__.nix  # imports
 │   │   ├── base/           # 各 WM 共用
 │   │   │   ├── __base__.nix
 │   │   │   ├── polkit.nix
@@ -189,21 +174,21 @@ nixcfg/
 │   │   ├── pwmenu/         # wlogout
 │   │   └── wall/           # waypaper / awww
 │   ├── input/              # fcitx5 / rime / ibus
-│   │   └── __input__.nix   # desktop.input.select
+│   │   └── __input__.nix   # imports
 │   ├── term/               # kitty / alacritty
-│   │   └── __term__.nix    # desktop.term.select
+│   │   └── __term__.nix    # imports + xterm→kitty
 │   ├── fileMgr/            # dolphin / thunar
-│   │   ├── __fileMgr__.nix # desktop.fileMgr.list
+│   │   ├── __fileMgr__.nix # imports
 │   │   ├── dolphin/
 │   │   └── thunar/         # 内含用户级 FileManager1 D-Bus 覆盖 + inode/directory 关联
 │   ├── browser/            # firefox / brave
-│   │   ├── __browser__.nix # desktop.browser.select
+│   │   ├── __browser__.nix # desktop.browser.default
 │   │   ├── brave.nix
 │   │   ├── firefox.nix
 │   │   ├── betterfox.user.js
 │   │   └── smoothfox.user.js
 │   └── editor/             # vscodium / zed
-│       └── __editor__.nix  # desktop.editor.list
+│       └── __editor__.nix  # imports
 │
 ├── apps/               # Layer 3: 用户应用
 │   ├── __apps__.nix    # imports + lib.mkDefault 默认值

@@ -13,13 +13,7 @@ in {
     ./alacritty.nix
   ];
 
-  options.desktop.term.select = lib.mkOption {
-    type = lib.types.nullOr (lib.types.enum ["kitty" "alacritty"]);
-    default = null;
-    description = "terminal emulator";
-  };
-
-  config = lib.mkIf (config.desktop.term.select == "kitty") {
+  config = lib.mkIf config.desktop.term.kitty.enable {
     environment.systemPackages = [xterm];
   };
 }

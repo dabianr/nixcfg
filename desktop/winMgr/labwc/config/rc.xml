@@ -417,6 +417,14 @@
     <windowRule identifier="baz" title="quax" serverDecoration="yes"/>
   </windowRules>
   -->
+  <windowRules>
+    <!-- DroidLoom 窗口 app_id = Android 包名, 且不请求 xdg-decoration;
+         不强制 SSD 就没有标题栏/无法用标题栏按钮关闭。 -->
+    <windowRule identifier="com.*" serverDecoration="yes"/>
+    <windowRule identifier="org.*" serverDecoration="yes"/>
+    <windowRule identifier="io.*" serverDecoration="yes"/>
+    <windowRule identifier="net.*" serverDecoration="yes"/>
+  </windowRules>
   <placement>
     <policy>cascade</policy>
     <cascadeOffset x="40" y="30" />

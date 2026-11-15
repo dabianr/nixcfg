@@ -3,9 +3,14 @@
   pkgs,
   lib,
   ...
-}:
-lib.mkIf (config.desktop.term.select == "alacritty") {
-  environment.systemPackages = with pkgs; [
-    alacritty
-  ];
+}: let
+  cfg = config.desktop.term.alacritty;
+in {
+  options.desktop.term.alacritty.enable = lib.mkEnableOption "alacritty terminal";
+
+  config = lib.mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [
+      alacritty
+    ];
+  };
 }

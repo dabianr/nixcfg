@@ -13,28 +13,65 @@
 
   config.desktop = lib.mkDefault {
     base.theme = "manual";
-    dispMgr.select = "noctalia-greeter";
-    winMgr.list = [
-      "labwc"
-      "niri"
-    ];
+
+    dispMgr = {
+      sddm.enable = false;
+      greetd.enable = false;
+      noctalia-greeter.enable = true;
+    };
+
+    winMgr = {
+      base.enable = true;
+      hypr.enable = false;
+      labwc.enable = false;
+      mangowc.enable = false;
+      niri.enable = true;
+    };
+
     shell = {
       _noctalia.enable = true;
 
-      # bar.list = [ "waybar" # "ironbar"];
-      # bar.waybar.niriTaskbar = true;
+      bar = {
+        waybar.enable = false;
+        ironbar.enable = false;
+      };
+      launcher = {
+        fuzzel.enable = false;
+        rofi.enable = false;
+        wofi.enable = false;
+      };
+      lock.swaylock.enable = false;
+      notif = {
+        mako.enable = false;
+        swaync.enable = false;
+      };
+      pwmenu.wlogout.enable = false;
       wall.enable = true;
-      # lock.swaylock.enable = true;
-      # pwmenu.wlogout.enable = true;
-      # notif.select = "mako";
-      # launcher.select = "fuzzel";
     };
-    input.select = "fcitx5";
-    term.select = "kitty";
-    fileMgr.list = ["dolphin" "thunar"];
-    editor.list = ["vscodium" "zed"];
+
+    input = {
+      rime.enable = true;
+      fcitx5.enable = true;
+      ibus.enable = false;
+    };
+
+    term = {
+      kitty.enable = true;
+      alacritty.enable = false;
+    };
+
+    fileMgr = {
+      dolphin.enable = true;
+      thunar.enable = true;
+    };
+
+    editor = {
+      vscodium.enable = true;
+      zed.enable = true;
+    };
+
     browser = {
-      select = "brave";
+      default = "brave";
       firefox = {
         enable = true;
         smoothfox = true;

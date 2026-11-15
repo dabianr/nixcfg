@@ -7,9 +7,9 @@
     brave = "brave-browser.desktop";
     firefox = "firefox.desktop";
   };
-  selected = desktopFile.${config.desktop.browser.select};
+  selected = desktopFile.${config.desktop.browser.default};
 in {
-  options.desktop.browser.select = lib.mkOption {
+  options.desktop.browser.default = lib.mkOption {
     type = lib.types.enum ["brave" "firefox"];
     description = "默认浏览器 (决定 mime handler, 需确保对应 browser.enable 已开)";
   };
