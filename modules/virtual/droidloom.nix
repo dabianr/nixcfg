@@ -38,9 +38,6 @@ in {
     #   '';
     # };
 
-    # cell→host 的 TCP 被上面的 nft 规则 drop, 但 ADB 通道是通的。
-    # 用 adb reverse 把主机 mihomo 反向暴露成 cell 内的 127.0.0.1:7897,
-    # 再给 Android 设全局代理; 遵守系统代理的应用即可走主机代理。
     systemd.user.services.droidloom-adb-reverse = lib.mkIf config.apps.services.proxy.mihomo.enable {
       description = "Reverse-tunnel host mihomo into the DroidLoom cell";
       after = ["droidloom.service"];
@@ -58,10 +55,12 @@ in {
             i=$((i + 1))
             sleep 2
           done
-          adb -s device:droidloom reverse tcp:7897 tcp:7897
-          adb -s device:droidloom shell settings put global http_proxy 127.0.0.1:7897
+          adb -s device:droidloom reverse --remove tcp:7897 >/dev/null 2>&1 || true
+          adb -s device:droidloom reverse --remove tcp:55099 >/dev/null 2>&1 || true
+          adb -s device:droidloom reverse tcp:55099 tcp:7897
+          adb -s device:droidloom shell settings put global http_proxy 127.0.0.1:55099
         '';
-      };
+      };# 55099为cell侧 7897主机侧
     };
   };
 }
