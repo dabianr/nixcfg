@@ -54,6 +54,10 @@ hl.config({
     cursor = {
         no_warps = true, -- 焦点变化时不把鼠标吸到窗口中心
     },
+    render = {
+        send_content_type = false, -- 不向显示器报告内容类型, 避免显示器自动切 picture mode/色彩方案
+        cm_auto_hdr       = 0,     -- 关闭全屏自动 HDR 切换
+    },
     misc = {
         force_default_wallpaper = 0,
         disable_hyprland_logo   = true,
