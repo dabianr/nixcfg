@@ -22,7 +22,7 @@
 
     winMgr = {
       base.enable = true;
-      hypr.enable = false;
+      hypr.enable = true;
       labwc.enable = false;
       mangowc.enable = false;
       niri.enable = true;
