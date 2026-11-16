@@ -1,0 +1,82 @@
+--- a/src/shell/control_center/tabs/network_tab.cpp
++++ b/src/shell/control_center/tabs/network_tab.cpp
+@@ -658,13 +658,21 @@
+             if (m_network == nullptr || m_actionPending) {
+               return;
+             }
+-            const bool wasConnected = m_network->state().connected;
++            const NetworkState& st = m_network->state();
++            const bool wiredActive = st.kind == NetworkConnectivity::Wired && st.connected;
++            if (st.connected && !wiredActive && m_network->canActivateWiredConnection()) {
++              m_network->activateWiredConnection();
++              PanelManager::instance().refresh();
++              return;
++            }
++            const bool wasConnected = st.connected;
++            const NetworkConnectivity wasKind = st.kind;
+             if (wasConnected) {
+               m_network->disconnect();
+             } else if (!m_network->activateWiredConnection()) {
+               return;
+             }
+-            beginPendingAction(wasConnected);
++            beginPendingAction(wasConnected, wasKind);
+             PanelManager::instance().refresh();
+           },
+       })
+@@ -1157,7 +1165,7 @@
+   }
+   const NetworkState& s = m_network->state();
+   if (m_actionPending) {
+-    const bool flipped = s.connected != m_actionPendingConnected;
++    const bool flipped = s.connected != m_actionPendingConnected || s.kind != m_actionPendingKind;
+     const bool timedOut = std::chrono::steady_clock::now() - m_actionPendingSince > kActionPendingTimeout;
+     if (flipped || timedOut) {
+       m_actionPending = false;
+@@ -1180,10 +1188,11 @@
+   m_currentTitle->setText(currentTitle(s, modem));
+   m_currentDetail->setText(currentDetail(s, externalIp, modem));
+   if (m_disconnectButton != nullptr) {
+-    const bool canReconnectWired = !s.connected && m_network->canActivateWiredConnection();
+-    m_disconnectButton->setVisible(s.connected || canReconnectWired || m_actionPending);
+-    m_disconnectButton->setGlyph(s.connected ? "plug-off" : "plug");
+-    m_disconnectButton->setVariant(s.connected ? ButtonVariant::Destructive : ButtonVariant::Default);
++    const bool wiredActive = s.kind == NetworkConnectivity::Wired && s.connected;
++    const bool canActivateWired = !wiredActive && m_network->canActivateWiredConnection();
++    m_disconnectButton->setVisible(s.connected || canActivateWired || m_actionPending);
++    m_disconnectButton->setGlyph(canActivateWired ? "plug" : "plug-off");
++    m_disconnectButton->setVariant(canActivateWired ? ButtonVariant::Default : ButtonVariant::Destructive);
+     m_disconnectButton->setEnabled(!m_actionPending);
+   }
+   if (m_wifiToggle != nullptr) {
+@@ -1200,9 +1209,10 @@
+   }
+ }
+ 
+-void NetworkTab::beginPendingAction(bool wasConnected) {
++void NetworkTab::beginPendingAction(bool wasConnected, NetworkConnectivity wasKind) {
+   m_actionPending = true;
+   m_actionPendingConnected = wasConnected;
++  m_actionPendingKind = wasKind;
+   m_actionPendingSince = std::chrono::steady_clock::now();
+   m_actionPendingTimer.start(kActionPendingTimeout + std::chrono::milliseconds(50), []() {
+     PanelManager::instance().requestUpdateOnly();
+--- a/src/shell/control_center/tabs/network_tab.h
++++ b/src/shell/control_center/tabs/network_tab.h
+@@ -48,7 +48,7 @@
+   // A backend exists and its daemon is on the bus.
+   [[nodiscard]] bool networkAvailable() const noexcept;
+   void syncCurrentCard();
+-  void beginPendingAction(bool wasConnected);
++  void beginPendingAction(bool wasConnected, NetworkConnectivity wasKind);
+   void requestWirelessEnabled(bool enabled);
+   void handleWirelessEnabledCompletion(std::uint64_t generation, bool success);
+   void rebuildApList(Renderer& renderer);
+@@ -132,6 +132,7 @@
+   // timeout), so a click on stale state cannot fire the inverse action.
+   bool m_actionPending = false;
+   bool m_actionPendingConnected = false;
++  NetworkConnectivity m_actionPendingKind = NetworkConnectivity::Unknown;
+   std::chrono::steady_clock::time_point m_actionPendingSince;
+ 
+   bool m_wifiTogglePending = false;
