@@ -1,0 +1,30 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: 检查 flake 结构与输入
+        run: nix flake show --all-systems > /dev/null
+
+      - name: 检查所有 .nix 文件的语法
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            if ! nix-instantiate --parse "$f" > /dev/null 2>parse.err; then
+              echo "::error file=$f::语法解析失败"
+              cat parse.err
+              fail=1
+            fi
+          done < <(git ls-files '*.nix')
+          exit $fail
