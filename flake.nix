@@ -105,6 +105,7 @@
     nixosConfigurations = {
       lap = mkSystem "lap" [./host/lap/configuration.nix];
       pc = mkSystem "pc" [./host/pc/configuration.nix];
+      hjl = mkSystem "hjl" [./host/hjl/configuration.nix];
       install-iso = mkSystem "iso-installer" [./host/install-iso/configuration.nix];
     };
   };
