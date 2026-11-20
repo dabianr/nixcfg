@@ -40,6 +40,9 @@ in {
         helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
           --namespace ${cfg.namespace} --create-namespace \
           --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+          --set grafana.service.type=NodePort --set grafana.service.nodePort=30300 \
+          --set prometheus.service.type=NodePort --set prometheus.service.nodePort=30900 \
+          --set alertmanager.service.type=NodePort --set alertmanager.service.nodePort=30903 \
           --wait --timeout 15m
       '';
       serviceConfig = {

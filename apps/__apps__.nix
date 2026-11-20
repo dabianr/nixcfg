@@ -18,6 +18,7 @@
       git.enable = true;
       neovim.enable = true;
       yazi.enable = true;
+      devops.enable = true;
     };
 
     services = {
@@ -33,7 +34,7 @@
       # proxy.dae.enable  = true;
       ingress.enable = false;
       remote-ctrl.enable = false;
-      monitoring.enable = false;
+      monitoring.enable = true;
     };
 
     pentest = {

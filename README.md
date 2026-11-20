@@ -232,7 +232,8 @@ nixcfg/
 │   │   ├── vm-managers.nix     # 虚拟机管理
 │   │   ├── mcu.nix             # 单片机工具链
 │   │   ├── fpga.nix            # FPGA 工具链
-│   │   └── rs.nix              # 逆向/底层工具链
+│   │   ├── rs.nix              # 逆向/底层工具链
+│   │   └── devops.nix          # k8s/helm/k9s 等 DevOps CLI
 │   ├── pentest/        # 渗透测试工具
 │   │   ├── __pentest__.nix     # imports
 │   │   ├── misc.nix            # 网络/逆向/移动安全工具

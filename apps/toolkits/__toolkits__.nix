@@ -17,5 +17,6 @@
     ./rs.nix
     ./fpga.nix
     ./hive.nix
+    ./devops.nix
   ];
 }
