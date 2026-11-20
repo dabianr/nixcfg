@@ -33,6 +33,7 @@ in {
   imports = [
     ./litellm/litellm.nix
     ./hermes/hermes.nix
+    ./herdr/herdr.nix
     ./opencode/opencode.nix
     ./pi/pi.nix
     ./grok/grok.nix

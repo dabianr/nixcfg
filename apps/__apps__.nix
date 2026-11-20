@@ -24,10 +24,11 @@
     services = {
       ai.enable = true;
       ai.hermes.enable = true;
+      ai.herdr.enable = false;
       ai.litellm.enable = false;
-      ai.opencode.enable = true;
+      ai.opencode.enable = false;
       ai.pi.enable = true;
-      ai.grok.enable = true;
+      ai.grok.enable = false;
       proxy.enable = true;
       proxy.mihomo.enable = true;
       # proxy.daed.enable = true;# TODO WPI

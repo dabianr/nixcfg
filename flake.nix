@@ -62,6 +62,11 @@
       url = "github:loystonpais/linuwowo";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    herdr = {
+      url = "github:herdrdev/herdr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
