@@ -17,7 +17,7 @@
     # Esc  cap
     services.xserver.xkb.options = lib.mkForce "";
     
-    secrets.path = "${self}/host/hjl/secrets";
+    secrets.path = "${self}/secrets/hjl";
 
     apps = {
         toolkits ={
