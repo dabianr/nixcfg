@@ -13,7 +13,6 @@ in {
     programs.labwc.enable = true;
     environment.systemPackages = with pkgs; [
       wlr-randr
-      xwayland-satellite
     ];
     home-manager.users.${username} = {
       dconf.settings = {
@@ -47,7 +46,6 @@ in {
     };
 
     programs.uwsm = {
-      enable = true;
       waylandCompositors = {
         labwc = {
           prettyName = "Labwc";

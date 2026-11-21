@@ -1,7 +1,5 @@
 {
-  config,
   lib,
-  username,
   ...
 }: {
   imports = [
@@ -26,9 +24,5 @@
       default = [];
       description = "programming languages toolchains";
     };
-  };
-
-  config.environment.sessionVariables = {
-    PATH = ["/home/${username}/.local/bin"];
   };
 }

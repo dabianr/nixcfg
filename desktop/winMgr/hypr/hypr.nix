@@ -12,7 +12,6 @@ in {
   config = lib.mkIf cfg.enable {
     programs.hyprland.enable = true;
     environment.systemPackages = with pkgs; [
-      xwayland-satellite
       grim
       slurp
       jq
@@ -39,7 +38,6 @@ in {
     };
 
     programs.uwsm = {
-      enable = true;
       waylandCompositors = {
         hyprland = {
           prettyName = "Hyprland";

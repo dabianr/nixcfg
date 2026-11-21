@@ -1,27 +1,11 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }: {
   boot = {
     # 内核随 flake.nix 里 nixpkgs-unstable 的 pin (linux-zen 7.2.11)
     kernelPackages = pkgs.linuxKernel.packages.linux_zen;
-    
-    # kernelPackages = pkgs.linuxKernel.packagesFor (
-    #   pkgs.linuxKernel.kernels.linux_zen.override {
-    #     argsOverride = {
-    #       structuredExtraConfig =
-    #         pkgs.linuxKernel.kernels.linux_zen.structuredExtraConfig
-    #         // {
-    #           X86_NATIVE_CPU = lib.kernel.yes;
-    #           FONT_TER10x18 = lib.kernel.yes;
-    #           FONT_TER16x32 = lib.mkForce lib.kernel.no;
-    #         };
-    #     };
-    #     ignoreConfigErrors = true;
-    #   }
-    # );
+
 
     supportedFilesystems = ["ntfs"];
     kernel.sysctl = {
