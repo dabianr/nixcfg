@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }: let
   cfg = config.apps.services.monitoring.prometheus;
@@ -17,37 +16,29 @@ in {
   };
 
   config = lib.mkIf (cfg.enable && config.apps.services.monitoring.k3s.enable) {
-    systemd.services.kube-prometheus-stack = {
-      description = "Deploy kube-prometheus-stack into k3s";
-      wants = ["network-online.target"];
-      requires = ["k3s.service"];
-      after = ["k3s.service" "network-online.target"];
-      wantedBy = ["multi-user.target"];
-      path = [pkgs.kubernetes-helm pkgs.kubectl];
-      environment = {
-        HOME = "/root";
-        KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
-      };
-      script = ''
-        set -eu
-        # 等 k3s API 就绪
-        for _ in $(seq 60); do
-          kubectl get nodes >/dev/null 2>&1 && break
-          sleep 2
-        done
-        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
-        helm repo update
-        helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-          --namespace ${cfg.namespace} --create-namespace \
-          --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
-          --set grafana.service.type=NodePort --set grafana.service.nodePort=30300 \
-          --set prometheus.service.type=NodePort --set prometheus.service.nodePort=30900 \
-          --set alertmanager.service.type=NodePort --set alertmanager.service.nodePort=30903 \
-          --wait --timeout 15m
-      '';
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
+    # chart 在 build 时拉取并锁 hash, 由 k3s helm-controller 部署, 不再开机跑 helm。
+    # 首次从旧的 systemd+helm 方案迁移: 先 `helm -n monitoring uninstall kube-prometheus-stack` 再 rebuild。
+    services.k3s.autoDeployCharts.kube-prometheus-stack = {
+      name = "kube-prometheus-stack";
+      repo = "https://prometheus-community.github.io/helm-charts";
+      version = "93.6.1";
+      hash = "sha256-biqBiCtIg4WEcJUrCgI2aqyQbcJTvxBXNg+CUmWX/eQ=";
+      targetNamespace = cfg.namespace;
+      createNamespace = true;
+      values = {
+        prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues = false;
+        grafana.service = {
+          type = "NodePort";
+          nodePort = 30300;
+        };
+        prometheus.service = {
+          type = "NodePort";
+          nodePort = 30900;
+        };
+        alertmanager.service = {
+          type = "NodePort";
+          nodePort = 30903;
+        };
       };
     };
   };
