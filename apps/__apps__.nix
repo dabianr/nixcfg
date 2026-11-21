@@ -51,6 +51,7 @@
       steam.enable = true;
       wine.enable = true;
       linuwowo.enable = false;
+      misc.enable = true;
     };
   };
 }

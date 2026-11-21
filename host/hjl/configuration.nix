@@ -1,5 +1,5 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-{ lib, username, self, ... }:
+{ lib, self, ... }:
 {
 	imports = [
 		./hardware-configuration.nix
@@ -13,7 +13,6 @@
 		HandleLidSwitchExternalPower = "lock";
 	};
 
-    home-manager.users.${username}.xdg.configFile."containers/storage.conf".text = lib.mkForce "";
     # Esc  cap
     services.xserver.xkb.options = lib.mkForce "";
     
@@ -54,6 +53,7 @@
             steam.enable = false;
             wine.enable = false;
             linuwowo.enable = false;
+            misc.enable = true;
         };
         pentest = {
             misc.enable = false;
