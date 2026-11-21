@@ -22,6 +22,16 @@ in {
       ];
     };
 
+    # 改到登录后启动
+    systemd.services.k3s.wantedBy = lib.mkForce [];
+    systemd.services.k3s-background = {
+      description = "Start k3s in the background (do not block boot)";
+      wantedBy = ["multi-user.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${config.systemd.package}/bin/systemctl --no-block start k3s.service";
+      };
+    };
 
     # /proc/net -> /proc/self/net, 所以 node-exporter 是 hostNetwork
     networking.firewall = {
