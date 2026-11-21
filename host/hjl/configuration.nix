@@ -18,7 +18,7 @@
     services.xserver.xkb.options = lib.mkForce "";
     
     secrets.path = "${self}/secrets/hjl";
-    core.user.username = 'hjl';
+    core.user.username = "hjl";
 
     apps = {
         toolkits ={
