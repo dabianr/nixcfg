@@ -10,7 +10,7 @@
 in {
   options.secrets.path = lib.mkOption {
     type = lib.types.path;
-    default = "${self}/secrets";
+    default = "${self}/secrets/${username}";
     description = "sops secrets directory, override per host to avoid key conflicts";
   };
 
