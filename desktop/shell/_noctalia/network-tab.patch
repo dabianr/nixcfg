@@ -1,6 +1,53 @@
 --- a/src/shell/control_center/tabs/network_tab.cpp
 +++ b/src/shell/control_center/tabs/network_tab.cpp
-@@ -658,13 +658,21 @@
+@@ -238,9 +238,11 @@
+ public:
+   AccessPointRow(
+       float scale, AccessPointInfo ap, bool saved, std::function<void(const AccessPointInfo&)> onActivate,
+-      std::function<void(const AccessPointInfo&)> onForget
++      std::function<void(const AccessPointInfo&)> onForget,
++      std::function<void(const AccessPointInfo&)> onDisconnect
+   )
+-      : m_ap(std::move(ap)), m_onActivate(std::move(onActivate)), m_onForget(std::move(onForget)) {
++      : m_ap(std::move(ap)), m_onActivate(std::move(onActivate)), m_onForget(std::move(onForget)),
++        m_onDisconnect(std::move(onDisconnect)) {
+     setDirection(FlexDirection::Horizontal);
+     setAlign(FlexAlign::Center);
+     setGap(Style::spaceSm * scale);
+@@ -300,6 +302,11 @@
+     });
+     if (m_ap.active) {
+       action->setGlyph("check");
++      action->setOnClick([this]() {
++        if (m_onDisconnect) {
++          m_onDisconnect(m_ap);
++        }
++      });
+     } else if (saved) {
+       action->setGlyph("trash");
+       action->setOnClick([this]() {
+@@ -316,6 +323,12 @@
+     area->setOnLeave([this]() { applyState(); });
+     area->setOnPress([this](const InputArea::PointerData& /*data*/) { applyState(); });
+     area->setOnClick([this](const InputArea::PointerData& /*data*/) {
++      if (m_ap.active) {
++        if (m_onDisconnect) {
++          m_onDisconnect(m_ap);
++        }
++        return;
++      }
+       if (m_onActivate) {
+         m_onActivate(m_ap);
+       }
+@@ -391,6 +404,7 @@
+   AccessPointInfo m_ap;
+   std::function<void(const AccessPointInfo&)> m_onActivate;
+   std::function<void(const AccessPointInfo&)> m_onForget;
++  std::function<void(const AccessPointInfo&)> m_onDisconnect;
+   Label* m_title = nullptr;
+   Button* m_actionButton = nullptr;
+   InputArea* m_inputArea = nullptr;
+@@ -658,13 +672,21 @@
              if (m_network == nullptr || m_actionPending) {
                return;
              }
@@ -24,7 +71,7 @@
              PanelManager::instance().refresh();
            },
        })
-@@ -1157,7 +1165,7 @@
+@@ -1157,7 +1179,7 @@
    }
    const NetworkState& s = m_network->state();
    if (m_actionPending) {
@@ -33,7 +80,7 @@
      const bool timedOut = std::chrono::steady_clock::now() - m_actionPendingSince > kActionPendingTimeout;
      if (flipped || timedOut) {
        m_actionPending = false;
-@@ -1180,10 +1188,11 @@
+@@ -1180,10 +1202,11 @@
    m_currentTitle->setText(currentTitle(s, modem));
    m_currentDetail->setText(currentDetail(s, externalIp, modem));
    if (m_disconnectButton != nullptr) {
@@ -49,7 +96,7 @@
      m_disconnectButton->setEnabled(!m_actionPending);
    }
    if (m_wifiToggle != nullptr) {
-@@ -1200,9 +1209,10 @@
+@@ -1200,9 +1223,10 @@
    }
  }
  
@@ -61,6 +108,21 @@
    m_actionPendingSince = std::chrono::steady_clock::now();
    m_actionPendingTimer.start(kActionPendingTimeout + std::chrono::milliseconds(50), []() {
      PanelManager::instance().requestUpdateOnly();
+@@ -1375,6 +1399,14 @@
+                   m_network->forgetSsid(clicked.ssid);
+                 }
+                 PanelManager::instance().refresh();
++              },
++              [this](const AccessPointInfo& clicked) {
++                if (m_network == nullptr) {
++                  return;
++                }
++                if (m_network->deactivateAccessPoint(clicked)) {
++                  PanelManager::instance().refresh();
++                }
+               }
+           );
+           auto* rowPtr = row.get();
 --- a/src/shell/control_center/tabs/network_tab.h
 +++ b/src/shell/control_center/tabs/network_tab.h
 @@ -48,7 +48,7 @@
@@ -80,3 +142,95 @@
    std::chrono::steady_clock::time_point m_actionPendingSince;
  
    bool m_wifiTogglePending = false;
+--- a/src/dbus/network/inetwork_service.h
++++ b/src/dbus/network/inetwork_service.h
+@@ -34,6 +34,10 @@
+   virtual bool activateAccessPoint(const AccessPointInfo& ap) = 0;
+   virtual bool activateAccessPoint(const AccessPointInfo& ap, const std::string& psk) = 0;
+ 
++  // Disconnect the connection on this access point's device, so the UI can
++  // toggle off the currently connected Wi-Fi row.
++  virtual bool deactivateAccessPoint(const AccessPointInfo& /*ap*/) { return false; }
++
+   // 802.1X association. Backends that cannot build an EAP profile keep the
+   // defaults, and the UI offers the enterprise form only where it is supported.
+   [[nodiscard]] virtual bool supportsEnterprise() const noexcept { return false; }
+--- a/src/dbus/network/network_manager_service.h
++++ b/src/dbus/network/network_manager_service.h
+@@ -52,6 +52,7 @@
+   // Returns false only on an immediate D-Bus error.
+   bool activateAccessPoint(const AccessPointInfo& ap) override;
+   bool activateAccessPoint(const AccessPointInfo& ap, const std::string& psk) override;
++  bool deactivateAccessPoint(const AccessPointInfo& ap) override;
+ 
+   [[nodiscard]] bool supportsEnterprise() const noexcept override { return true; }
+   bool activateEnterpriseAccessPoint(
+--- a/src/dbus/network/network_manager_service.cpp
++++ b/src/dbus/network/network_manager_service.cpp
+@@ -1190,6 +1190,66 @@
+   }
+ }
+ 
++bool NetworkManagerService::deactivateAccessPoint(const AccessPointInfo& ap) {
++  if (ap.devicePath.empty()) {
++    return false;
++  }
++  const std::string devicePath = ap.devicePath;
++  const std::weak_ptr<int> lifetimeToken = m_lifetimeToken;
++  try {
++    auto device = std::shared_ptr<sdbus::IProxy>(
++        sdbus::createProxy(m_bus.connection(), kNmBusName, sdbus::ObjectPath{devicePath})
++    );
++    device->callMethodAsync("Get")
++        .onInterface(kPropertiesInterface)
++        .withArguments(kNmDeviceInterface, "ActiveConnection")
++        .uponReplyInvoke([this, lifetimeToken, device, devicePath](
++                             std::optional<sdbus::Error> err, sdbus::Variant value
++                         ) {
++          if (lifetimeToken.expired()) {
++            return;
++          }
++          if (err.has_value()) {
++            kLog.warn("wifi ActiveConnection read failed path={}: {}", devicePath, err->what());
++            return;
++          }
++          std::string activePath;
++          try {
++            activePath = std::string{value.get<sdbus::ObjectPath>()};
++          } catch (const sdbus::Error&) {
++            return;
++          }
++          if (activePath.empty() || activePath == "/") {
++            return;
++          }
++          try {
++            m_nm->callMethodAsync("DeactivateConnection")
++                .onInterface(kNmInterface)
++                .withArguments(sdbus::ObjectPath{activePath})
++                .uponReplyInvoke([this, lifetimeToken, activePath](
++                                     std::optional<sdbus::Error> deactivateErr
++                                 ) {
++                  if (lifetimeToken.expired()) {
++                    return;
++                  }
++                  if (deactivateErr.has_value()) {
++                    kLog.warn("DeactivateConnection(wifi) failed path={}: {}", activePath, deactivateErr->what());
++                  } else {
++                    kLog.info("deactivated wifi connection path={}", activePath);
++                  }
++                  m_emitOnNextRefresh = true;
++                  requestRebind();
++                });
++          } catch (const sdbus::Error& e) {
++            kLog.warn("DeactivateConnection(wifi) dispatch failed: {}", e.what());
++          }
++        });
++  } catch (const sdbus::Error& e) {
++    kLog.warn("wifi ActiveConnection dispatch failed path={}: {}", devicePath, e.what());
++  }
++  return true;
++}
++
+ void NetworkManagerService::disconnect() {
+   if (m_state.kind == NetworkConnectivity::Wired && !m_activeDevicePath.empty() && m_activeDevicePath != "/") {
+     // DeactivateConnection can be immediately undone by a wired profile's
