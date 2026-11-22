@@ -21,19 +21,19 @@ in {
 
     users.users.${username}.extraGroups = ["podman"];
 
-    home-manager.users.${username} = {
-      xdg.configFile = {
-        "containers/storage.conf" = {
-          force = true;
-          recursive = true;
-          text = ''
-            [storage]
-            driver = "overlay"
-            graphroot = "/home/VMS/docker/storage"
-          '';
-        };
-      };
-    };
+    # home-manager.users.${username} = {
+    #   xdg.configFile = {
+    #     "containers/storage.conf" = {
+    #       force = true;
+    #       recursive = true;
+    #       text = ''
+    #         [storage]
+    #         driver = "overlay"
+    #         graphroot = "/home/VMS/docker/storage"
+    #       '';
+    #     };
+    #   };
+    # };
 
     environment.systemPackages = with pkgs; [
       podman

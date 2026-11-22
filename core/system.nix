@@ -29,9 +29,11 @@
   # };
 
   nix.settings = {
+    # 优先级由各缓存自己的 /nix-cache-info 决定(nixos.org=40), 这里只按顺序打破平手;
+    # 官方的 ?priority= 查询参数并不存在, 写了也只会被当成 URL 的一部分发给对方。
     substituters = [
-      "https://mirrors.ustc.edu.cn/nix-channels/store?priority=5"
-      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store?priority=10"
+      "https://mirrors.ustc.edu.cn/nix-channels/store"
+      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
       "https://cache.nixos.org/"
     ];
     experimental-features = ["nix-command" "flakes"];

@@ -20,7 +20,10 @@ in {
     environment.systemPackages = with pkgs; [
       xauth
       wl-clipboard
+      xwayland-satellite
     ];
+
+    programs.uwsm.enable = true;
 
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
     systemd.user.targets.graphical-session.unitConfig.StopTimeoutSec = 3;

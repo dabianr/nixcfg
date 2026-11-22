@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  username,
   ...
 }: let
   cfg = config.desktop.shell.bar.ironbar;
@@ -19,13 +18,5 @@ in {
       pwvucontrol
       wireplumber
     ];
-
-    # home-manager.users.${username} = {
-    # 	xdg.configFile."ironbar/" = {
-    # 		force = true;
-    # 		recursive = true;
-    # 		source = ./config;
-    # 	};
-    # };
   };
 }

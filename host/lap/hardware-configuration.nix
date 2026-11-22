@@ -15,7 +15,7 @@
   boot.extraModulePackages = [];
 
   fileSystems = {
-    "boot/efi" = {
+    "/boot/efi" = {
       device = "/dev/disk/by-uuid/FED5-34ED";
       fsType = "vfat";
       options = [

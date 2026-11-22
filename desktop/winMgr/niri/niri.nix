@@ -68,10 +68,6 @@ in {
       };
     };
 
-    environment.systemPackages = with pkgs; [
-      xwayland-satellite
-    ];
-
     xdg.portal = {
       extraPortals = with pkgs; [xdg-desktop-portal-gnome];
       config.niri = {
@@ -82,7 +78,6 @@ in {
     };
 
     programs.uwsm = {
-      enable = true;
       waylandCompositors = {
         niri = {
           prettyName = "Niri";

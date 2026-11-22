@@ -17,6 +17,8 @@
     users.defaultUserShell = pkgs.fish;
     # users.users.${username}.shell = pkgs.fish;
 
+    home-manager.users.${username}.home.sessionPath = ["/home/${username}/.local/bin"];
+
     # ───── shell toolkits ─────────────────────────
     environment.systemPackages = with pkgs; [
       ripgrep

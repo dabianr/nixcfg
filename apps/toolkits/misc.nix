@@ -40,7 +40,7 @@ in {
 
         # ── apps ──────────────────────────────────────
         # bottles
-        stable.gearlever
+        gearlever
         localsend
         # pomodoro-gtk
         # keepassxc
@@ -63,7 +63,7 @@ in {
 
         bubblewrap
 
-        mariadb
+        mariadb.client
       ];
     };
   };

@@ -18,8 +18,8 @@ in {
           scheme = "Catppuccin";
         };
         cursor = {
-          theme = "breeze_cursors";
-          size = 24;
+          theme = config.desktop.base.cursorName;
+          size = config.desktop.base.cursorSize;
         };
         keyboard = {
           layout = "us";
