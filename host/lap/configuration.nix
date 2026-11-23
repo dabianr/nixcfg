@@ -14,5 +14,17 @@
     HoldoffTimeoutSec = "5s";
   };
 
+  apps.services = {
+    remote-ctrl = {
+      nginx.enable = false;
+      vnc.enable = true;
+      easytier = {
+        enable = true;
+        ipv4 = "10.144.144.2/24";
+        peers = ["wss://app.bigdogbarks.top"];
+      };
+    };
+  };
+
   apps.game.steam.enable = false;
 }
