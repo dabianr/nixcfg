@@ -36,8 +36,8 @@
       ingress.enable = false;
       remote-ctrl = {
         nginx.enable = false;
-        vnc.enable = true;
-        easytier.enable = true;
+        vnc.enable = false;
+        easytier.enable = false;
       };
       monitoring.enable = true;
     };

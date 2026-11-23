@@ -49,7 +49,11 @@
             remote-ctrl = {
                 nginx.enable = false;
                 vnc.enable = true;
-                easytier.enable = true;
+                easytier = {
+                    enable = true;
+                    ipv4 = "10.144.144.3/24";
+                    peers = ["wss://app.bigdogbarks.top"];
+                };
             };
             monitoring.enable = false;
         };

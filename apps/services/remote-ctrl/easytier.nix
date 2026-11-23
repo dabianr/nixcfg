@@ -3,63 +3,96 @@
   lib,
   ...
 }: let
-  # 10.144.144.0/24 是 EasyTier 默认虚拟网段, 每台机器固定一个地址
-  ipv4 = {
-    pc = "10.144.144.1/24";
-    lap = "10.144.144.2/24";
-    hjl = "10.144.144.3/24";
-  };
+  cfg = config.apps.services.remote-ctrl.easytier;
 in {
-  options.apps.services.remote-ctrl.easytier.enable = lib.mkEnableOption "EasyTier 组网 (NAT 穿透 + 共享节点中继)";
-
-  config = lib.mkIf config.apps.services.remote-ctrl.easytier.enable {
-    boot.kernelModules = ["tun"];
-
-    # 网络名和密钥都在 token.yaml 里, 渲染成 env 文件给 EasyTier 用, 不进 nix store
-    sops.secrets.easytier_network_name = {
-      sopsFile = config.secrets.path + "/token.yaml";
+  options.apps.services.remote-ctrl.easytier = {
+    enable = lib.mkEnableOption "EasyTier 组网";
+    ipv4 = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "本机虚拟 IP, 如 10.144.144.1/24; 留空则只转发不建 TUN";
+      example = "10.144.144.1/24";
     };
-    sops.secrets.easytier_network_secret = {
-      sopsFile = config.secrets.path + "/token.yaml";
+    peers = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "启动时连接的对端, 如公共节点 tcp:///udp:// 或入口机 wss://<relayDomain>";
     };
-    sops.templates."easytier-env" = {
-      content = ''
-        ET_NETWORK_NAME=${config.sops.placeholder.easytier_network_name}
-        ET_NETWORK_SECRET=${config.sops.placeholder.easytier_network_secret}
-      '';
-    };
-
-    services.easytier = {
-      enable = true;
-      instances.default = {
-        settings = {
-          hostname = config.networking.hostName;
-          ipv4 = lib.attrByPath [config.networking.hostName] null ipv4;
-          # 双方都没有公网服务器: 用社区共享节点做发现, P2P 失败时兜底中继。
-          # 节点失效就替换, 所有机器保持同一份列表。
-          peers = [
-            # 2026-11 实测可用; 用 IP 不用域名: mihomo fake-ip 会把域名解析成 28.0.0.x 导致连不上
-            "tcp://107.150.25.187:11010"
-            "udp://107.150.25.187:11010"
-          ];
-        };
-        # 固定 TUN 名字, 防火墙规则和排障都认它
-        extraSettings.flags.dev_name = "easytier0";
-        environmentFiles = [config.sops.templates."easytier-env".path];
-      };
-    };
-
-    # 11010 用于直连和 NAT 打洞后的入站
-    networking.firewall = {
-      allowedUDPPorts = [11010];
-      allowedTCPPorts = [11010];
-      # novnc
-      interfaces.easytier0.allowedTCPPorts = [6080];
-    };
-
-    systemd.services."easytier-default" = {
-      wants = ["sops-install-secrets.service"];
-      after = ["sops-install-secrets.service"];
+    relayDomain = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "入口机把这个节点作为 Cloudflare Tunnel 公网入口的域名";
     };
   };
+
+  config = lib.mkMerge [
+    (lib.mkIf cfg.enable {
+      boot.kernelModules = ["tun"];
+
+      # 网络名和密钥都在 token.yaml 里, 渲染成 env 文件给 EasyTier 用, 不进 nix store
+      sops.secrets.easytier_network_name = {
+        sopsFile = config.secrets.path + "/token.yaml";
+      };
+      sops.secrets.easytier_network_secret = {
+        sopsFile = config.secrets.path + "/token.yaml";
+      };
+      sops.templates."easytier-env" = {
+        content = ''
+          ET_NETWORK_NAME=${config.sops.placeholder.easytier_network_name}
+          ET_NETWORK_SECRET=${config.sops.placeholder.easytier_network_secret}
+        '';
+      };
+
+      services.easytier = {
+        enable = true;
+        instances.default = {
+          settings = {
+            hostname = config.networking.hostName;
+            ipv4 = cfg.ipv4;
+            # 11010 所有网卡监听: NAT 打洞后对端从物理网卡进来
+            # 11011 只给入口机的 cloudflared 用, 非入口机不开
+            listeners =
+              [
+                "tcp://0.0.0.0:11010"
+                "udp://0.0.0.0:11010"
+              ]
+              ++ lib.optional (cfg.relayDomain != null) "ws://127.0.0.1:11011";
+            peers = cfg.peers;
+          };
+          # 固定 TUN 名字, 防火墙规则和排障都认它
+          extraSettings.flags.dev_name = "easytier0";
+          environmentFiles = [config.sops.templates."easytier-env".path];
+        };
+      };
+
+      # 11010 用于直连和 NAT 打洞后的入站; 11011 只走 cloudflared 本地回环
+      networking.firewall = {
+        allowedUDPPorts = [11010];
+        allowedTCPPorts = [11010];
+        # novnc
+        interfaces.easytier0.allowedTCPPorts = [6080];
+      };
+
+      # 等 sops 渲染完 env 文件再启动
+      systemd.services."easytier-default" = {
+        wants = ["sops-install-secrets.service"];
+        after = ["sops-install-secrets.service"];
+      };
+    })
+
+    (lib.mkIf (cfg.enable && cfg.relayDomain != null) {
+      sops.secrets.cloudflared-sh-tunnel = {
+        sopsFile = config.secrets.path + "/token.yaml";
+      };
+
+      services.cloudflared = {
+        enable = true;
+        tunnels."sh-tunnel" = {
+          credentialsFile = config.sops.secrets.cloudflared-sh-tunnel.path;
+          ingress."${cfg.relayDomain}" = "http://127.0.0.1:11011";
+          default = "http_status:404";
+        };
+      };
+    })
+  ];
 }
