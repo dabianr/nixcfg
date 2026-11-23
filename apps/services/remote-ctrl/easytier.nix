@@ -10,9 +10,9 @@
     hjl = "10.144.144.3/24";
   };
 in {
-  options.modules.services.easytier.enable = lib.mkEnableOption "EasyTier 组网 (NAT 穿透 + 共享节点中继)";
+  options.apps.services.remote-ctrl.easytier.enable = lib.mkEnableOption "EasyTier 组网 (NAT 穿透 + 共享节点中继)";
 
-  config = lib.mkIf config.modules.services.easytier.enable {
+  config = lib.mkIf config.apps.services.remote-ctrl.easytier.enable {
     boot.kernelModules = ["tun"];
 
     # 网络名和密钥都在 token.yaml 里, 渲染成 env 文件给 EasyTier 用, 不进 nix store

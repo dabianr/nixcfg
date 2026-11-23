@@ -19,8 +19,6 @@
     secrets.path = "${self}/secrets/hjl";
     core.user.username = "hjl";
 
-    modules.services.easytier.enable = true;
-
     apps = {
         toolkits ={
             # mcu.enable = true;
@@ -48,7 +46,11 @@
             # proxy.daed.enable = true;# TODO WPI
             # proxy.dae.enable  = true;
             ingress.enable = false;
-            remote-ctrl.enable = false;
+            remote-ctrl = {
+                nginx.enable = false;
+                vnc.enable = true;
+                easytier.enable = true;
+            };
             monitoring.enable = false;
         };
         game={

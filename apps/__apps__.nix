@@ -34,7 +34,11 @@
       # proxy.daed.enable = true;# TODO WPI
       # proxy.dae.enable  = true;
       ingress.enable = false;
-      remote-ctrl.enable = true;
+      remote-ctrl = {
+        nginx.enable = false;
+        vnc.enable = true;
+        easytier.enable = true;
+      };
       monitoring.enable = true;
     };
 
