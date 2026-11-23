@@ -43,6 +43,8 @@ in {
       configFile = config.sops.templates."mihomo-config.yaml".path;
       webui = pkgs.metacubexd;
       tunMode = true;
+      # PROCESS-NAME 规则需要读取其他用户的 /proc
+      processesInfo = true;
     };
     networking.firewall.trustedInterfaces = ["Meta"];
 
