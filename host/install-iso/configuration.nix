@@ -33,6 +33,10 @@
 
   desktop.browser.firefox.enable = false;
 
+  # ISO 用户是 nixos, 默认路径 secrets/nixos 不存在会让 sops 断言失败;
+  # 指向 e 的目录即可构建, 运行时没有私钥, 解密失败可忽略。
+  secrets.path = "${self}/secrets/e";
+
   # ISO 无 age key: sops 渲染报 failed unit 但不影响运行, opencode 用免费额度应急
   apps.services.ai.enable = true;
   apps.services.ai.opencode.enable = true;
