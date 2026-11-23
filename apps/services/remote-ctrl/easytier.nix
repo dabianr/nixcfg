@@ -40,6 +40,8 @@ in {
         content = ''
           ET_NETWORK_NAME=${config.sops.placeholder.easytier_network_name}
           ET_NETWORK_SECRET=${config.sops.placeholder.easytier_network_secret}
+          # 公网入口只服务本网络
+          ET_PRIVATE_MODE=true
         '';
       };
 
@@ -61,6 +63,9 @@ in {
           };
           # 固定 TUN 名字, 防火墙规则和排障都认它
           extraSettings.flags.dev_name = "easytier0";
+          # 关键: 不把出站 socket 绑到物理网卡, 否则多网卡并发 dial 时
+          # 物理网卡那条直连 Cloudflare 会被 RST 并抢走连接 (issue #646/#1629)
+          extraArgs = ["--bind-device" "false"];
           environmentFiles = [config.sops.templates."easytier-env".path];
         };
       };
