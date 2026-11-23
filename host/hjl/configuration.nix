@@ -19,6 +19,8 @@
     secrets.path = "${self}/secrets/hjl";
     core.user.username = "hjl";
 
+    modules.services.easytier.enable = true;
+
     apps = {
         toolkits ={
             # mcu.enable = true;

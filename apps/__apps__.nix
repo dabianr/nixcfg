@@ -34,7 +34,7 @@
       # proxy.daed.enable = true;# TODO WPI
       # proxy.dae.enable  = true;
       ingress.enable = false;
-      remote-ctrl.enable = false;
+      remote-ctrl.enable = true;
       monitoring.enable = true;
     };
 

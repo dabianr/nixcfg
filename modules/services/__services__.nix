@@ -4,5 +4,6 @@
     ./ssh.nix
     ./xkb.nix
     ./kmscon.nix
+    ./easytier.nix
   ];
 }
