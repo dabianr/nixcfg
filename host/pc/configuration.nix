@@ -17,6 +17,8 @@
     remote-ctrl = {
       nginx.enable = false;
       vnc.enable = true;
+      sunshine.enable = true;
+      moonlight.enable = true;
       easytier ={
         enable = true;
         ipv4 = "10.144.144.1/24";

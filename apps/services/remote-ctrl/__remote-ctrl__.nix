@@ -7,5 +7,7 @@
     ./nginx.nix
     ./vnc.nix
     ./easytier.nix
+    ./sunshine.nix
+    ./moonlight.nix
   ];
 }
