@@ -11,6 +11,7 @@ in {
     services.sunshine = {
       enable = true;
       capSysAdmin = true;
+      # openFirewall = true;
     };
 
     # 只给 EasyTier 虚拟网访问, 不对 LAN/WAN 开放; 端口基于默认 47989
