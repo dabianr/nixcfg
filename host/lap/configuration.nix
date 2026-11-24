@@ -16,7 +16,6 @@
 
   apps.services = {
     remote-ctrl = {
-      nginx.enable = false;
       vnc.enable = true;
       moonlight.enable = true;
       easytier = {
@@ -26,6 +25,4 @@
       };
     };
   };
-
-  apps.game.steam.enable = false;
 }

@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   username,
   ...
 }: let
@@ -70,13 +69,5 @@ in {
       	fi
       done
     '';
-
-    system.activationScripts."hermes-agent-cleanup-container" = lib.mkIf (!agentCfg.container.enable) (lib.stringAfter ["hermes-agent-fix-ownership"] ''
-      if ${pkgs.podman}/bin/podman container exists hermes-agent 2>/dev/null; then
-      	echo "hermes-agent: removing stale container from previous container mode..."
-      	${pkgs.podman}/bin/podman stop -t 10 hermes-agent 2>/dev/null || true
-      	${pkgs.podman}/bin/podman rm -f hermes-agent 2>/dev/null || true
-      fi
-    '');
   };
 }

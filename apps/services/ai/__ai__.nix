@@ -7,7 +7,7 @@
 }: let
   cfg = config.apps.services.ai;
   # 注入 api-key-env 后进入当前登录壳 (fish/zsh/...)
-  aiShell = pkgs.writeShellScriptBin "ai-shell" ''
+  apiEnv = pkgs.writeShellScriptBin "apienv" ''
     set -euo pipefail
     set -a
     # shellcheck disable=SC1091
@@ -48,6 +48,6 @@ in {
       mode = "0400";
     };
 
-    environment.systemPackages = [aiShell];
+    environment.systemPackages = [apiEnv];
   };
 }

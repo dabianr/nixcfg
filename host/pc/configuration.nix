@@ -15,7 +15,6 @@
   apps.services = {
     monitoring.enable = true;
     remote-ctrl = {
-      nginx.enable = false;
       vnc.enable = true;
       sunshine.enable = true;
       moonlight.enable = true;

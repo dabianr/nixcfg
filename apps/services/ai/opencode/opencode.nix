@@ -6,12 +6,7 @@
   ...
 }: let
   cfg = config.apps.services.ai.opencode;
-  opencodeWrapped = pkgs.writeShellScriptBin "opencode" ''
-    set -a
-    source ${config.sops.secrets.api-key-env.path}
-    set +a
-    exec ${pkgs.opencode}/bin/opencode "$@"
-  '';
+  opencodeWrapped = import ../wrap.nix {inherit config pkgs;} "opencode" pkgs.opencode "opencode";
 in {
   options.apps.services.ai.opencode.enable = lib.mkEnableOption "opencode CLI";
 

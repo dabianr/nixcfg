@@ -30,6 +30,7 @@ in {
       "dabianchaoren:BASIC_AUTH_HASH_PLACEHOLDER";
   };
 
+  # novnc 反代
   services.nginx = {
     enable = true;
     recommendedProxySettings = true;

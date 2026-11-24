@@ -6,12 +6,7 @@
   ...
 }: let
   cfg = config.apps.services.ai.pi;
-  piWrapped = pkgs.writeShellScriptBin "pi" ''
-    set -a
-    source ${config.sops.secrets.api-key-env.path}
-    set +a
-    exec ${pkgs.pi-coding-agent}/bin/pi "$@"
-  '';
+  piWrapped = import ../wrap.nix {inherit config pkgs;} "pi" pkgs.pi-coding-agent "pi";
 in {
   options.apps.services.ai.pi.enable = lib.mkEnableOption "pi-coding-agent CLI";
 

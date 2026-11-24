@@ -5,7 +5,7 @@
   ...
 }: let
   cfg = config.apps.services.ai.litellm;
-  configFile = builtins.toFile "litellm-config.yaml" (builtins.readFile ./config.yaml);
+  configFile = ./config.yaml;
 in {
   options.apps.services.ai.litellm.enable = lib.mkEnableOption "litellm proxy";
 

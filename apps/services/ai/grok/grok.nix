@@ -6,12 +6,7 @@
   ...
 }: let
   cfg = config.apps.services.ai.grok;
-  grokWrapped = pkgs.writeShellScriptBin "grok" ''
-    set -a
-    source ${config.sops.secrets.api-key-env.path}
-    set +a
-    exec ${pkgs.grok-build}/bin/grok "$@"
-  '';
+  grokWrapped = import ../wrap.nix {inherit config pkgs;} "grok" pkgs.grok-build "grok";
 in {
   options.apps.services.ai.grok.enable = lib.mkEnableOption "grok-build (xAI coding agent) CLI";
 
