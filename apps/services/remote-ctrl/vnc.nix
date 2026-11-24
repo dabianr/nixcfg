@@ -4,8 +4,12 @@
   lib,
   config,
   ...
-}:
-lib.mkIf config.apps.services.remote-ctrl.enable {
+}: let
+  cfg = config.apps.services.remote-ctrl.vnc;
+in {
+  options.apps.services.remote-ctrl.vnc.enable = lib.mkEnableOption "wayvnc + novnc";
+
+  config = lib.mkIf cfg.enable {
   environment.systemPackages = with pkgs; [
     wayvnc
     novnc
@@ -18,5 +22,6 @@ lib.mkIf config.apps.services.remote-ctrl.enable {
         source = ./wayvnc;
       };
     };
+  };
   };
 }

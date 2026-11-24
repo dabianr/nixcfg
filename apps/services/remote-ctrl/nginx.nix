@@ -5,8 +5,12 @@
   pkgs,
   username,
   ...
-}:
-lib.mkIf config.apps.services.remote-ctrl.enable {
+}: let
+  cfg = config.apps.services.remote-ctrl.nginx;
+in {
+  options.apps.services.remote-ctrl.nginx.enable = lib.mkEnableOption "nginx 反代 novnc (basic auth)";
+
+  config = lib.mkIf cfg.enable {
   # nix-shell -p apacheHttpd --run 'htpasswd -B -n dabianchaoren'
   sops.secrets.nginx-basic-auth-hash = {
     sopsFile = config.secrets.path + "/token.yaml";
@@ -74,4 +78,5 @@ lib.mkIf config.apps.services.remote-ctrl.enable {
       chmod 640 /etc/nginx/ssl/key.pem
     fi
   '';
+  };
 }

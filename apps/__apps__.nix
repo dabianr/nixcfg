@@ -12,30 +12,34 @@
       # fpga.enable = true;
       misc.enable = true;
       typst.enable = true;
-      latex.enable = true;
-      hive.enable = true;
+      # latex.enable = true;
+      # hive.enable = true;
       vm-managers.enable = true;
       git.enable = true;
       neovim.enable = true;
       yazi.enable = true;
-      devops.enable = true;
+      # devops.enable = true;
     };
 
     services = {
       ai.enable = true;
-      ai.hermes.enable = true;
-      ai.herdr.enable = false;
-      ai.litellm.enable = false;
-      ai.opencode.enable = false;
+      # ai.hermes.enable = true;
+      # ai.herdr.enable = true;
+      # ai.litellm.enable = true;
+      # ai.opencode.enable = true;
       ai.pi.enable = true;
-      ai.grok.enable = false;
+      # ai.grok.enable = true;
       proxy.enable = true;
       proxy.mihomo.enable = true;
       # proxy.daed.enable = true;# TODO WPI
       # proxy.dae.enable  = true;
-      ingress.enable = false;
-      remote-ctrl.enable = true;
-      monitoring.enable = true;
+      # ingress.enable = true;
+      # remote-ctrl = {
+      #   nginx.enable = true;
+      #   vnc.enable = true;
+      #   easytier.enable = true;
+      # };
+      # monitoring.enable = true;
     };
 
     pentest = {
@@ -48,10 +52,10 @@
     };
 
     game={
-      steam.enable = true;
+      # steam.enable = true;
       wine.enable = true;
-      linuwowo.enable = false;
-      misc.enable = true;
+      # linuwowo.enable = true;
+      # misc.enable = true;
     };
   };
 }
