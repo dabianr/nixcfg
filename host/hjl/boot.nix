@@ -15,6 +15,7 @@
 				canTouchEfiVariables = true;
 				efiSysMountPoint = "/boot";
 			};
+			#woshi yige jijidada de ren
 			# grub = {
 			# 	efiSupport = true;
 			# 	#efiInstallAsRemovable = true; # 如果 canTouchEfiVariables不能用
