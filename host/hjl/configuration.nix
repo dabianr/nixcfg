@@ -14,6 +14,10 @@
 	};
 
     # Esc  cap
+    programs.git.config.user = lib.mkForce {
+        name = "dabianr";
+        email = "863189269@qq.com";
+    };
     services.xserver.xkb.options = lib.mkForce "";
     
     secrets.path = "${self}/secrets/hjl";
@@ -72,4 +76,5 @@
             # yakit.chromePath = "/run/current-system/sw/bin/brave";
         };
     };
+    
 }
