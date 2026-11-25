@@ -14,10 +14,11 @@
  
   apps.services = {
     monitoring.enable = true;
-    remote-ctrl = {
+    remote.private = {
       vnc.enable = true;
-      sunshine.enable = true;
-      moonlight.enable = true;
+      streaming.enable = true;
+      streaming.moonlight = true;
+      streaming.sunshine  = true;
       easytier ={
         enable = true;
         ipv4 = "10.144.144.1/24";

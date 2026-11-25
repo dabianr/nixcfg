@@ -3,9 +3,25 @@
   lib,
   ...
 }: let
-  cfg = config.apps.services.ingress;
-in
-  lib.mkIf cfg.enable {
+  cfg = config.apps.services.remote.public.ingress;
+  domain = "app.bigdogbarks.top";
+  port = 8082;
+in {
+  options.apps.services.remote.public.ingress = {
+    enable = lib.mkEnableOption "ingress services (cloudflared tunnel + nginx)";
+    domain = lib.mkOption {
+      type = lib.types.str;
+      default = domain;
+      description = "ingress 域名";
+    };
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = port;
+      description = "nginx 监听端口";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
     services.nginx = {
       enable = true;
       recommendedProxySettings = true;
@@ -60,4 +76,10 @@ in
     };
 
     networking.firewall.allowedTCPPorts = [4444 1099];
-  }
+
+    apps.services.remote.cloudflared = {
+      enable = true;
+      ingress."${cfg.domain}" = "http://localhost:${toString cfg.port}";
+    };
+  };
+}

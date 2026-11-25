@@ -3,11 +3,11 @@
   lib,
   ...
 }: let
-  cfg = config.apps.services.remote-ctrl.easytier;
+  cfg = config.apps.services.remote.private.easytier;
   env = [config.sops.templates."easytier-env".path];
   entry = cfg.relayDomain != null;
 in {
-  options.apps.services.remote-ctrl.easytier = {
+  options.apps.services.remote.private.easytier = {
     enable = lib.mkEnableOption "EasyTier 组网";
     ipv4 = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -96,7 +96,7 @@ in {
 
     # ─── tunnel ───────────────────────
     (lib.mkIf (cfg.enable && entry) {
-      apps.services.cloudflared = {
+      apps.services.remote.cloudflared = {
         enable = true;
         ingress."${cfg.relayDomain}" = "http://127.0.0.1:11021";
       };

@@ -15,9 +15,10 @@
   };
 
   apps.services = {
-    remote-ctrl = {
+    remote.private = {
       vnc.enable = true;
-      moonlight.enable = true;
+      streaming.enable = true;
+      streaming.moonlight = true;
       easytier = {
         enable = true;
         ipv4 = "10.144.144.2/24";

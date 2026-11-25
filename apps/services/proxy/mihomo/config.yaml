@@ -180,6 +180,9 @@ proxies:
 # 策略组
 proxy-groups:
   - {name: 节点选择, type: select, proxies: [香港节点, 新加坡节点, 日本节点, 台湾节点, 美国节点, 欧洲节点, 全部节点, 自建/家宽节点, 故障转移], icon: "https://pub-8feead0908f649a8b94397f152fb9cba.r2.dev/select.png"}
+  # Cloudflare Tunnel 用: 7844 端口直连和代理都时通时断(运营商/节点), 留成可切换组
+  # 默认排第一的 DIRECT; 直连连不上时在面板/API 把 CF-Tunnel 切到 节点选择
+  - {name: CF-Tunnel, type: select, proxies: [DIRECT, 节点选择]}
   - {name: YouTube, <<: *Proxy_first, icon: "https://pub-8feead0908f649a8b94397f152fb9cba.r2.dev/youtube.png"}
   - {name: FCM, <<: *Proxy_first, icon: "https://pub-8feead0908f649a8b94397f152fb9cba.r2.dev/fcm.png"}
   - {name: GoogleVPN, <<: *Proxy_first, icon: "https://pub-8feead0908f649a8b94397f152fb9cba.r2.dev/googlevpn.png"}
@@ -246,8 +249,8 @@ proxy-groups:
 rules: 
   # EasyTier 只让 UDP 直连: STUN/打洞走物理网卡, ws 到 CF 仍走代理
   # - AND,((NETWORK,udp),(PROCESS-NAME,easytier-core)),全球直连
-  # Cloudflare Tunnel 必须直连: 经代理节点时 7844(QUIC/TCP) 会被断, 隧道起不来
-  - DOMAIN-SUFFIX,argotunnel.com,DIRECT
+  # Cloudflare Tunnel 走可切换的 CF-Tunnel 组(直连/代理都可能被断)
+  - DOMAIN-SUFFIX,argotunnel.com,CF-Tunnel
   - IP-CIDR,210.34.84.127/32,全球直连,no-resolve
   - RULE-SET,banAd_domain,隐私拦截
   - RULE-SET,wechat_domain,全球直连
