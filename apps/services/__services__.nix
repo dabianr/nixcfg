@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    ./cloudflared.nix
     ./ai/__ai__.nix
     ./proxy/__proxy__.nix
     ./ingress/__ingress__.nix

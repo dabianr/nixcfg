@@ -1,12 +1,9 @@
 {
   lib,
-  config,
-  self,
   ...
 }: let
   domain = "app.bigdogbarks.top";
   port = 8082;
-  cfg = config.apps.services.ingress;
 in {
   imports = [
     ./nginx.nix
@@ -24,12 +21,6 @@ in {
       type = lib.types.port;
       default = port;
       description = "nginx 监听端口";
-    };
-  };
-
-  config = lib.mkIf cfg.enable {
-    sops.secrets.cloudflared-sh-tunnel = {
-      sopsFile = config.secrets.path + "/token.yaml";
     };
   };
 }

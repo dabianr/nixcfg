@@ -246,11 +246,14 @@ proxy-groups:
 rules: 
   # EasyTier 只让 UDP 直连: STUN/打洞走物理网卡, ws 到 CF 仍走代理
   # - AND,((NETWORK,udp),(PROCESS-NAME,easytier-core)),全球直连
+  # Cloudflare Tunnel 必须直连: 经代理节点时 7844(QUIC/TCP) 会被断, 隧道起不来
+  - DOMAIN-SUFFIX,argotunnel.com,DIRECT
   - IP-CIDR,210.34.84.127/32,全球直连,no-resolve
   - RULE-SET,banAd_domain,隐私拦截
   - RULE-SET,wechat_domain,全球直连
   - RULE-SET,wechat_asn,全球直连,no-resolve
   - RULE-SET,speedtest_domain,Speedtest
+
   - RULE-SET,Cloudflare_domain,节点选择
   - RULE-SET,Wise_domain,Wise
   - RULE-SET,paypal_domain,PayPal
