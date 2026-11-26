@@ -28,6 +28,7 @@
       # ai.litellm.enable = true;
       # ai.opencode.enable = true;
       ai.pi.enable = true;
+      ai.dsh.enable = true;
       # ai.grok.enable = true;
       proxy.enable = true;
       proxy.mihomo.enable = true;

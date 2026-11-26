@@ -1,18 +1,16 @@
 {
   description = "Optimized NixOS Flake Configuration";
 
-  nixConfig = {
-    extra-substituters = ["https://pwndbg.cachix.org"];
-    extra-trusted-public-keys = [
-      "pwndbg.cachix.org-1:HhtIpP7j73SnuzLgobqqa8LVTng5Qi36sQtNt79cD3k="
-    ];
-  };
+  # nixConfig = {
+  #   extra-substituters = ["https://pwndbg.cachix.org" "https://deepseek-harness-nix.cachix.org"];
+  #   extra-trusted-public-keys = [
+  #     "pwndbg.cachix.org-1:HhtIpP7j73SnuzLgobqqa8LVTng5Qi36sQtNt79cD3k="
+  #     "deepseek-harness-nix.cachix.org-1:5NrkwLN9veNMhiINtU5ZeV4isXFhFsOwn6Ms7J1M+TA="
+  #   ];
+  # };
 
   inputs = {
-    # 7.3.4-zen 在 B550 + nvme/ahci/xhci 早期探测时 process_one_work NULL deref panic,
-    # 整份 nixpkgs 固定到 2026-10-30 的 rev (linux-zen 7.2.11 + patchelf 0.19.2)。
-    # 上游修好后把这里改回 nixos-unstable 再 nix flake update 即可。
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/1c89083e451e891152365b799595cf7790a43325";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     nixpkgs.follows = "nixpkgs-unstable";
@@ -58,14 +56,20 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # LinUwUx (Denuvo 运行时) 2026-11-26
     linuwowo = {
-      url = "github:loystonpais/linuwowo";
+      url = "github:loystonpais/linuwowo/edbce651b3816ca08f2c8d243b045caef6710858";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    herdr = {
-      url = "github:herdrdev/herdr";
-      inputs.nixpkgs.follows = "nixpkgs";
+    # herdr = {
+    #   url = "github:herdrdev/herdr";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+
+    # 固定 2026-11-26 rev
+    deepseek-harness = {
+      url = "github:moraxyc/deepseek-harness.nix/680feca4ec92cf5acdb6107d91d04bbde1024bd5";
     };
   };
 

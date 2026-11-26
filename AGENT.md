@@ -116,6 +116,9 @@ in
 * **最小改动原则**：新增或修改功能时，用最简洁的 Nix 语法做最小范围改动（能改一处变量不改多处）；删除/简化代码不受此限，但需同步清理 `import` 与失效默认选项。
 * **跨主机影响检查**：改动 `core/`、`desktop/`、`apps/toolkits/` 或 `apps/services/ai/` 的选项名与默认行为时，同步检查 `host/install-iso/configuration.nix` 及各主机配置。
 
+Limit the amount of comments you put in the code to a strict minimum.
+You should almost never add comments, except sometimes on non-trivial code, function definitions if the arguments aren't self-explanatory, and class definitions and their members.  Do not remove existing comments unless they are directly related to what you are changing. 
+
 ### 只读验证命令（修改后优先执行）
 
 ```bash
