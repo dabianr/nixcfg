@@ -29,8 +29,7 @@
       url = "github:nix-community/nixvim";
     };
 
-    # DroidLoom 上游只发 Arch 包; 此 flake 用官方 release 重打包并提供 NixOS 模块。
-    # 固定在已审计的 rev (2026-11-12), 避免 update 时被替换成未审计提交。
+    # 2026-11-12
     droidloom = {
       url = "github:pharra/droidloom-flake/d4521ba871280e3223ebc38d64bdc81b4eda4fbe";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -53,12 +52,6 @@
 
     stylix = {
       url = "github:nix-community/stylix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # LinUwUx (Denuvo 运行时) 2026-11-26
-    linuwowo = {
-      url = "github:loystonpais/linuwowo/edbce651b3816ca08f2c8d243b045caef6710858";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -87,7 +80,6 @@
       inputs.hermes-agent.nixosModules.default
       inputs.mango.nixosModules.mango
       inputs.stylix.nixosModules.stylix
-      inputs.linuwowo.nixosModules.default
       ({username, ...}: {
         system.stateVersion = "25.11";
         nixpkgs.overlays = [

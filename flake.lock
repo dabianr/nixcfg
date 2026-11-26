@@ -351,27 +351,6 @@
         "type": "github"
       }
     },
-    "linuwowo": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1784711860,
-        "narHash": "sha256-j4X2kQvftZ1GTBrgHDdm4bgTq+IUwQWAoz40FLoWhBQ=",
-        "owner": "loystonpais",
-        "repo": "linuwowo",
-        "rev": "edbce651b3816ca08f2c8d243b045caef6710858",
-        "type": "github"
-      },
-      "original": {
-        "owner": "loystonpais",
-        "repo": "linuwowo",
-        "rev": "edbce651b3816ca08f2c8d243b045caef6710858",
-        "type": "github"
-      }
-    },
     "mango": {
       "inputs": {
         "flake-parts": "flake-parts_3",
@@ -664,7 +643,6 @@
         "droidloom": "droidloom",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
-        "linuwowo": "linuwowo",
         "mango": "mango",
         "nixpkgs": [
           "nixpkgs-unstable"
