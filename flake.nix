@@ -27,6 +27,7 @@
 
     nixvim = {
       url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # 2026-11-12
@@ -63,6 +64,7 @@
     # 固定 2026-11-26 rev
     deepseek-harness = {
       url = "github:moraxyc/deepseek-harness.nix/680feca4ec92cf5acdb6107d91d04bbde1024bd5";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
