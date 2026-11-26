@@ -27,6 +27,9 @@
       };
     };
   };
+  apps.game={
+      misc.enable = true;
+    };
 
   # networking.interfaces.enp7s0.macAddress = "0A:1B:2C:3D:4E:5F";
   desktop.winMgr.niri.outputs = {
