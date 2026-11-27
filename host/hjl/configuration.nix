@@ -49,11 +49,11 @@
             proxy.mihomo.enable = true;
             # proxy.daed.enable = true;# TODO WPI
             # proxy.dae.enable  = true;
-            ingress.enable = false;
-            remote-ctrl = {
-                nginx.enable = false;
+            remote.public.ingress.enable = false;
+            remote.private = {
                 vnc.enable = true;
-                moonlight.enable = true;
+                streaming.enable = true;
+                streaming.moonlight = true;
                 easytier = {
                     enable = true;
                     ipv4 = "10.144.144.3/24";

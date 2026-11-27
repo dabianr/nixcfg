@@ -40,8 +40,8 @@ in {
 
     systemd.user.services.droidloom-adb-reverse = lib.mkIf config.apps.services.proxy.mihomo.enable {
       description = "Reverse-tunnel host mihomo into the DroidLoom cell";
-      after = ["droidloom.service"];
-      wantedBy = ["droidloom.service"];
+      after = ["droidloomd.service"];
+      wantedBy = ["droidloomd.service"];
       unitConfig.ConditionUser = username;
       serviceConfig = {
         Type = "oneshot";

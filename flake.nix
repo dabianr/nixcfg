@@ -1,18 +1,16 @@
 {
   description = "Optimized NixOS Flake Configuration";
 
-  nixConfig = {
-    extra-substituters = ["https://pwndbg.cachix.org"];
-    extra-trusted-public-keys = [
-      "pwndbg.cachix.org-1:HhtIpP7j73SnuzLgobqqa8LVTng5Qi36sQtNt79cD3k="
-    ];
-  };
+  # nixConfig = {
+  #   extra-substituters = ["https://pwndbg.cachix.org" "https://deepseek-harness-nix.cachix.org"];
+  #   extra-trusted-public-keys = [
+  #     "pwndbg.cachix.org-1:HhtIpP7j73SnuzLgobqqa8LVTng5Qi36sQtNt79cD3k="
+  #     "deepseek-harness-nix.cachix.org-1:5NrkwLN9veNMhiINtU5ZeV4isXFhFsOwn6Ms7J1M+TA="
+  #   ];
+  # };
 
   inputs = {
-    # 7.3.4-zen 在 B550 + nvme/ahci/xhci 早期探测时 process_one_work NULL deref panic,
-    # 整份 nixpkgs 固定到 2026-10-30 的 rev (linux-zen 7.2.11 + patchelf 0.19.2)。
-    # 上游修好后把这里改回 nixos-unstable 再 nix flake update 即可。
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/1c89083e451e891152365b799595cf7790a43325";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     nixpkgs.follows = "nixpkgs-unstable";
@@ -29,10 +27,10 @@
 
     nixvim = {
       url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # DroidLoom 上游只发 Arch 包; 此 flake 用官方 release 重打包并提供 NixOS 模块。
-    # 固定在已审计的 rev (2026-11-12), 避免 update 时被替换成未审计提交。
+    # 2026-11-12
     droidloom = {
       url = "github:pharra/droidloom-flake/d4521ba871280e3223ebc38d64bdc81b4eda4fbe";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -58,13 +56,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    linuwowo = {
-      url = "github:loystonpais/linuwowo";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # herdr = {
+    #   url = "github:herdrdev/herdr";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
-    herdr = {
-      url = "github:herdrdev/herdr";
+    # 固定 2026-11-26 rev
+    deepseek-harness = {
+      url = "github:moraxyc/deepseek-harness.nix/680feca4ec92cf5acdb6107d91d04bbde1024bd5";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -83,7 +82,6 @@
       inputs.hermes-agent.nixosModules.default
       inputs.mango.nixosModules.mango
       inputs.stylix.nixosModules.stylix
-      inputs.linuwowo.nixosModules.default
       ({username, ...}: {
         system.stateVersion = "25.11";
         nixpkgs.overlays = [

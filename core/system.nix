@@ -1,4 +1,4 @@
-{username, ...}: {
+{username, lib, ...}: {
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
 
@@ -54,6 +54,36 @@
     options = "--delete-older-than 7d";
     # 错过计划时间(关机)时,开机延迟随机 0-1h 补跑,避免阻塞启动
     randomizedDelaySec = "1h";
+  };
+
+  # 关机兜底: 单个 unit 停不下来最多等 15s, 整个关机流程卡死则 90s 后强制重启
+  systemd.settings.Manager = {
+    DefaultTimeoutStopSec = "15s";
+    ShutdownWatchdogSec = "90s";
+  };
+
+  # resolvconf 每次 resolv.conf 变更都会 try-restart nscd 清 DNS 缓存; 开机时
+  # NM 连发几次地址变化就会连拉 5 次, 撞上默认 start-limit 留下 failed/degraded。
+  # 这类重启是正常行为而非崩溃循环, 对该 unit 关掉限流即可
+  systemd.services.nscd.startLimitIntervalSec = 0;
+
+  # 后台 GC/优化让出 CPU 与 IO, 避免开机补跑时与登录后的交互抢资源
+  systemd.services = {
+    nix-gc.serviceConfig = {
+      Nice = 19;
+      IOSchedulingClass = "idle";
+    };
+    nix-optimise.serviceConfig = {
+      Nice = 19;
+      IOSchedulingClass = "idle";
+    };
+  };
+
+  # programs.fish 会 mkDefault 打开 man 索引缓存, 使每次开机都跑一遍 mandb
+  # 扫描全部 man 页(实测 3.2s / 读盘 150MB); 文档输出已关, 缓存也不再生成
+  documentation.man.cache = {
+    enable = lib.mkForce false;
+    generateAtRuntime = lib.mkForce false;
   };
 
   documentation.enable = false;

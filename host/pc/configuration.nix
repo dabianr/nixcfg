@@ -14,11 +14,11 @@
  
   apps.services = {
     monitoring.enable = true;
-    remote-ctrl = {
-      nginx.enable = false;
+    remote.private = {
       vnc.enable = true;
-      sunshine.enable = true;
-      moonlight.enable = true;
+      streaming.enable = true;
+      streaming.moonlight = true;
+      streaming.sunshine  = true;
       easytier ={
         enable = true;
         ipv4 = "10.144.144.1/24";
@@ -27,6 +27,9 @@
       };
     };
   };
+  apps.game={
+      misc.enable = true;
+    };
 
   # networking.interfaces.enp7s0.macAddress = "0A:1B:2C:3D:4E:5F";
   desktop.winMgr.niri.outputs = {

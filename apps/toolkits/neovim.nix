@@ -36,7 +36,6 @@ in {
         ignorecase = true;
         smartcase = true;
         mouse = "a";
-        clipboard = "unnamedplus";
       };
 
       clipboard = {
@@ -48,11 +47,6 @@ in {
       };
 
       globals.mapleader = " ";
-    };
-
-    environment.sessionVariables = {
-      VISUAL = "nvim";
-      EDITOR = "nvim";
     };
   };
 }

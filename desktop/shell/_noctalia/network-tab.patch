@@ -1,6 +1,6 @@
 --- a/src/shell/control_center/tabs/network_tab.cpp
 +++ b/src/shell/control_center/tabs/network_tab.cpp
-@@ -238,9 +238,11 @@
+@@ -240,9 +240,11 @@
  public:
    AccessPointRow(
        float scale, AccessPointInfo ap, bool saved, std::function<void(const AccessPointInfo&)> onActivate,
@@ -14,7 +14,7 @@
      setDirection(FlexDirection::Horizontal);
      setAlign(FlexAlign::Center);
      setGap(Style::spaceSm * scale);
-@@ -300,6 +302,11 @@
+@@ -303,6 +305,11 @@
      });
      if (m_ap.active) {
        action->setGlyph("check");
@@ -25,9 +25,9 @@
 +      });
      } else if (saved) {
        action->setGlyph("trash");
-       action->setOnClick([this]() {
-@@ -316,6 +323,12 @@
-     area->setOnLeave([this]() { applyState(); });
+       action->setOnClick([this] {
+@@ -319,6 +326,12 @@
+     area->setOnLeave([this] { applyState(); });
      area->setOnPress([this](const InputArea::PointerData& /*data*/) { applyState(); });
      area->setOnClick([this](const InputArea::PointerData& /*data*/) {
 +      if (m_ap.active) {
@@ -39,7 +39,7 @@
        if (m_onActivate) {
          m_onActivate(m_ap);
        }
-@@ -391,6 +404,7 @@
+@@ -394,6 +407,7 @@
    AccessPointInfo m_ap;
    std::function<void(const AccessPointInfo&)> m_onActivate;
    std::function<void(const AccessPointInfo&)> m_onForget;
@@ -47,7 +47,7 @@
    Label* m_title = nullptr;
    Button* m_actionButton = nullptr;
    InputArea* m_inputArea = nullptr;
-@@ -658,13 +672,21 @@
+@@ -669,13 +683,21 @@
              if (m_network == nullptr || m_actionPending) {
                return;
              }
@@ -71,7 +71,7 @@
              PanelManager::instance().refresh();
            },
        })
-@@ -1157,7 +1179,7 @@
+@@ -1263,7 +1285,7 @@
    }
    const NetworkState& s = m_network->state();
    if (m_actionPending) {
@@ -80,7 +80,7 @@
      const bool timedOut = std::chrono::steady_clock::now() - m_actionPendingSince > kActionPendingTimeout;
      if (flipped || timedOut) {
        m_actionPending = false;
-@@ -1180,10 +1202,11 @@
+@@ -1286,10 +1308,11 @@
    m_currentTitle->setText(currentTitle(s, modem));
    m_currentDetail->setText(currentDetail(s, externalIp, modem));
    if (m_disconnectButton != nullptr) {
@@ -96,7 +96,7 @@
      m_disconnectButton->setEnabled(!m_actionPending);
    }
    if (m_wifiToggle != nullptr) {
-@@ -1200,9 +1223,10 @@
+@@ -1306,9 +1329,10 @@
    }
  }
  
@@ -106,9 +106,9 @@
    m_actionPendingConnected = wasConnected;
 +  m_actionPendingKind = wasKind;
    m_actionPendingSince = std::chrono::steady_clock::now();
-   m_actionPendingTimer.start(kActionPendingTimeout + std::chrono::milliseconds(50), []() {
+   m_actionPendingTimer.start(kActionPendingTimeout + std::chrono::milliseconds(50), [] {
      PanelManager::instance().requestUpdateOnly();
-@@ -1375,6 +1399,14 @@
+@@ -1493,6 +1517,14 @@
                    m_network->forgetSsid(clicked.ssid);
                  }
                  PanelManager::instance().refresh();
@@ -127,14 +127,14 @@
 +++ b/src/shell/control_center/tabs/network_tab.h
 @@ -48,7 +48,7 @@
    // A backend exists and its daemon is on the bus.
-   [[nodiscard]] bool networkAvailable() const noexcept;
+   bool networkAvailable() const noexcept;
    void syncCurrentCard();
 -  void beginPendingAction(bool wasConnected);
 +  void beginPendingAction(bool wasConnected, NetworkConnectivity wasKind);
    void requestWirelessEnabled(bool enabled);
    void handleWirelessEnabledCompletion(std::uint64_t generation, bool success);
    void rebuildApList(Renderer& renderer);
-@@ -132,6 +132,7 @@
+@@ -141,6 +141,7 @@
    // timeout), so a click on stale state cannot fire the inverse action.
    bool m_actionPending = false;
    bool m_actionPendingConnected = false;
@@ -154,20 +154,20 @@
 +
    // 802.1X association. Backends that cannot build an EAP profile keep the
    // defaults, and the UI offers the enterprise form only where it is supported.
-   [[nodiscard]] virtual bool supportsEnterprise() const noexcept { return false; }
+   virtual bool supportsEnterprise() const noexcept { return false; }
 --- a/src/dbus/network/network_manager_service.h
 +++ b/src/dbus/network/network_manager_service.h
-@@ -52,6 +52,7 @@
+@@ -50,6 +50,7 @@
    // Returns false only on an immediate D-Bus error.
    bool activateAccessPoint(const AccessPointInfo& ap) override;
    bool activateAccessPoint(const AccessPointInfo& ap, const std::string& psk) override;
 +  bool deactivateAccessPoint(const AccessPointInfo& ap) override;
  
-   [[nodiscard]] bool supportsEnterprise() const noexcept override { return true; }
+   bool supportsEnterprise() const noexcept override { return true; }
    bool activateEnterpriseAccessPoint(
 --- a/src/dbus/network/network_manager_service.cpp
 +++ b/src/dbus/network/network_manager_service.cpp
-@@ -1190,6 +1190,66 @@
+@@ -1210,6 +1210,66 @@
    }
  }
  

@@ -3,11 +3,11 @@
   lib,
   ...
 }: let
-  cfg = config.apps.services.remote-ctrl.easytier;
+  cfg = config.apps.services.remote.private.easytier;
   env = [config.sops.templates."easytier-env".path];
   entry = cfg.relayDomain != null;
 in {
-  options.apps.services.remote-ctrl.easytier = {
+  options.apps.services.remote.private.easytier = {
     enable = lib.mkEnableOption "EasyTier 组网";
     ipv4 = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -38,9 +38,11 @@ in {
         ET_NETWORK_SECRET=${config.sops.placeholder.easytier_network_secret}
       '';
 
+      # 原来的 network-online 会把 NetworkManager-wait-online 拖进 boot 关键链;
+      # sops-install-secrets.service 在本机不存在(secrets 在 initrd 激活阶段写入)。
       systemd.services = lib.genAttrs (["easytier-default"] ++ lib.optional entry "easytier-gw") (_: {
-        wants = ["sops-install-secrets.service"];
-        after = ["sops-install-secrets.service"];
+        wants = lib.mkForce ["network.target" "nss-lookup.target"];
+        after = lib.mkForce ["network.target" "nss-lookup.target"];
       });
 
       # ─── instance ───────────────────────
@@ -94,15 +96,9 @@ in {
 
     # ─── tunnel ───────────────────────
     (lib.mkIf (cfg.enable && entry) {
-      sops.secrets.cloudflared-sh-tunnel.sopsFile = config.secrets.path + "/token.yaml";
-
-      services.cloudflared = {
+      apps.services.remote.cloudflared = {
         enable = true;
-        tunnels."sh-tunnel" = {
-          credentialsFile = config.sops.secrets.cloudflared-sh-tunnel.path;
-          ingress."${cfg.relayDomain}" = "http://127.0.0.1:11021";
-          default = "http_status:404";
-        };
+        ingress."${cfg.relayDomain}" = "http://127.0.0.1:11021";
       };
     })
   ];

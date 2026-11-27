@@ -6,36 +6,20 @@
   ...
 }: let
   cfg = config.apps.services.proxy.mihomo;
+  airports = import ../airports.nix {inherit config lib;};
   template = builtins.readFile ./config.yaml;
   geodata = pkgs.callPackage ./geodata.nix {};
 in {
   options.apps.services.proxy.mihomo.enable = lib.mkEnableOption "mihomo proxy";
 
   config = lib.mkIf cfg.enable {
-    sops.secrets = {
-      airport01URL = {sopsFile = config.secrets.path + "/token.yaml";};
-      airport02URL = {sopsFile = config.secrets.path + "/token.yaml";};
-      airport03URL = {sopsFile = config.secrets.path + "/token.yaml";};
-      airport04URL = {sopsFile = config.secrets.path + "/token.yaml";};
-    };
+    sops.secrets = airports.secrets;
 
     sops.templates."mihomo-config.yaml" = {
       owner = "root";
       group = "root";
       mode = "640";
-      content =
-        lib.replaceStrings [
-          "AIRPORT01_URL_PLACEHOLDER"
-          "AIRPORT02_URL_PLACEHOLDER"
-          "AIRPORT03_URL_PLACEHOLDER"
-          "AIRPORT04_URL_PLACEHOLDER"
-        ] [
-          config.sops.placeholder.airport01URL
-          config.sops.placeholder.airport02URL
-          config.sops.placeholder.airport03URL
-          config.sops.placeholder.airport04URL
-        ]
-        template;
+      content = airports.substitute template;
     };
 
     services.mihomo = {

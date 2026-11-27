@@ -13,7 +13,12 @@ in {
     virtualisation.libvirtd = {
       enable = true;
       onShutdown = "suspend";
+      # 关机 10s
+      shutdownTimeout = 15;
     };
+
+    # 该单元来自 libvirt 自带 unit, 默认 TimeoutStopSec=0(无限), 再兜一层
+    systemd.services.libvirt-guests.serviceConfig.TimeoutStopSec = lib.mkForce "25s";
 
     systemd.services.libvirtd = {
       wantedBy = lib.mkForce [];

@@ -28,15 +28,16 @@
       # ai.litellm.enable = true;
       # ai.opencode.enable = true;
       ai.pi.enable = true;
+      ai.dsh.enable = true;
       # ai.grok.enable = true;
       proxy.enable = true;
       proxy.mihomo.enable = true;
       # proxy.daed.enable = true;# TODO WPI
       # proxy.dae.enable  = true;
-      # ingress.enable = true;
-      # remote-ctrl = {
-      #   nginx.enable = true;
+      # remote.public.ingress.enable = true;
+      # remote.private = {
       #   vnc.enable = true;
+      #   vnc.reverseProxy = true;
       #   easytier.enable = true;
       # };
       # monitoring.enable = true;

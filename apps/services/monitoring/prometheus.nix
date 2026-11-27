@@ -27,6 +27,13 @@ in {
       createNamespace = true;
       values = {
         prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues = false;
+
+        # k3s 把这仨编译在进程里, 没有独立 metrics 端点; 不关就永久误报
+        # KubeControllerManagerDown / KubeSchedulerDown / KubeProxyDown
+        kubeControllerManager.enabled = false;
+        kubeScheduler.enabled = false;
+        kubeProxy.enabled = false;
+
         grafana.service = {
           type = "NodePort";
           nodePort = 30300;

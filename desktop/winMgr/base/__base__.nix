@@ -26,6 +26,7 @@ in {
     programs.uwsm.enable = true;
 
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
-    systemd.user.targets.graphical-session.unitConfig.StopTimeoutSec = 3;
+    # target 没有 StopTimeoutSec; 会话收尾由 user manager 的默认停止超时兜底
+    systemd.user.settings.Manager.DefaultTimeoutStopSec = 3;
   };
 }
